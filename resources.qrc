@@ -3,4 +3,7 @@
         <file>themes/light.qss</file>
         <file>themes/dark.qss</file>
     </qresource>
+    <qresource prefix="/icons">
+        <file>themes/icon.png</file>
+    </qresource>
 </RCC>

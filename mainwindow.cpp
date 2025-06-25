@@ -21,6 +21,8 @@ MainWindow::MainWindow(QWidget *parent)
     resize(1000, 700);
 
     applyTheme(settings->getThemePreference());
+
+    setWindowIcon(QIcon(":/icons/themes/icon.png"));
 }
 
 void MainWindow::setupUI()
