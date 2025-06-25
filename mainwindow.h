@@ -19,6 +19,8 @@
 #include "datavisualization.h"
 #include "reminder.h"
 #include "punchrecord.h"
+#include "settings.h"
+#include "settingsdialog.h"
 
 class MainWindow : public QMainWindow
 {
@@ -36,6 +38,7 @@ private slots:
     void onTaskComplete();
     void onShowTaskDetails(const QModelIndex &index);
     void handleReminder(const QString &topic, const QString &msg);
+    void applyTheme(const QString &theme);
 
 private:
     void setupUI();
@@ -49,6 +52,9 @@ private:
     QPushButton *addTaskButton;
     QPushButton *completeButton;
     QPushButton *refreshButton;
+    QPushButton *settingsButton;
+    SettingsDialog *settingsDialog;
+    Settings *settings;
 
     // Functional Modules
     TaskManager *taskManager;

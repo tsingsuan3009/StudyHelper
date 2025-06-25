@@ -9,7 +9,8 @@ MainWindow::MainWindow(QWidget *parent)
     taskManager(new TaskManager(this)),
     punchRecord(new PunchRecord(this)),
     reminder(new Reminder(this)),
-    dataViz(new DataVisualization(taskManager, punchRecord, this))
+    dataViz(new DataVisualization(taskManager, punchRecord, this)),
+    settings(new Settings(this))
 {
     setupUI();
     setupConnections();
@@ -18,6 +19,8 @@ MainWindow::MainWindow(QWidget *parent)
     // Window Settings
     setWindowTitle("学习养成计划");
     resize(1000, 700);
+
+    applyTheme(settings->getThemePreference());
 }
 
 void MainWindow::setupUI()
@@ -49,10 +52,12 @@ void MainWindow::setupUI()
     addTaskButton = new QPushButton("添加任务", taskTab);
     completeButton = new QPushButton("标记完成", taskTab);
     refreshButton = new QPushButton("刷新列表", taskTab);
+    settingsButton = new QPushButton("设置", taskTab);
 
     buttonLayout->addWidget(addTaskButton);
     buttonLayout->addWidget(completeButton);
     buttonLayout->addWidget(refreshButton);
+    buttonLayout->addWidget(settingsButton);
 
     // Assemble Task Tab
     taskLayout->addWidget(taskTable);
@@ -72,6 +77,7 @@ void MainWindow::setupConnections()
     connect(addTaskButton, &QPushButton::clicked, this, &MainWindow::onAddTask);
     connect(completeButton, &QPushButton::clicked, this, &MainWindow::onTaskComplete);
     connect(refreshButton, &QPushButton::clicked, this, &MainWindow::refreshTaskList);
+    connect(settingsButton, &QPushButton::clicked, this, [=]() {settingsDialog = new SettingsDialog(settings, this);settingsDialog->exec();});
 
     // Table
     connect(taskTable, &QTableWidget::doubleClicked, this, &MainWindow::onShowTaskDetails);
@@ -88,6 +94,7 @@ void MainWindow::setupConnections()
     connect(taskManager, &TaskManager::taskCompleted,dataViz, &DataVisualization::handleTaskCompleted);
     connect(punchRecord, &PunchRecord::punchRecorded, dataViz, &DataVisualization::updateCharts);
     connect(punchRecord, SIGNAL(punchRecorded(QString,QDate)),dataViz, SLOT(updateTrendChartData()));
+    connect(settings, &Settings::settingsChanged, this, [=]() {applyTheme(settings->getThemePreference());});
 }
 
 void MainWindow::refreshTaskList()
@@ -241,6 +248,23 @@ void MainWindow::handleReminder(const QString &topic, const QString &msg)
         }
     }
 }
+
+void MainWindow::applyTheme(const QString &theme) {
+    qApp->setStyleSheet("");  // 先清除样式
+
+    if (theme == "dark") {
+        QFile file(":/themes/dark.qss");
+        if (file.open(QFile::ReadOnly | QFile::Text)) {
+            qApp->setStyleSheet(file.readAll());
+        }
+    } else if (theme == "light") {
+        QFile file(":/themes/light.qss");
+        if (file.open(QFile::ReadOnly | QFile::Text)) {
+            qApp->setStyleSheet(file.readAll());
+        }
+    }
+}
+
 
 MainWindow::~MainWindow()
 {

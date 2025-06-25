@@ -5,6 +5,7 @@
 #include <QtCharts/QChartView>
 #include <QtCharts/QChart>
 #include <QtCharts/QLineSeries>
+#include <QDate>
 
 DataVisualization::DataVisualization(TaskManager *taskManager, PunchRecord *punchRecord, QWidget *parent)
     : QWidget(parent),
@@ -66,49 +67,59 @@ void DataVisualization::initCompletionRateChart() {
 }
 
 void DataVisualization::initDailyTaskTrendChart() {
-    // 创建图表视图
-    dailyTaskTrendChartView = new QChartView(this); // 明确命名空间
-    dailyTaskTrendChartView->setRenderHint(QPainter::Antialiasing);
-
-    // 确保有场景
-    if (!dailyTaskTrendChartView->scene()) {
-        dailyTaskTrendChartView->setScene(new QGraphicsScene(this));
-    }
-
     QChart *chart = new QChart();
     chart->setTitle("每日任务趋势 (最近7天)");
 
     // 创建系列
-    QLineSeries *series = new QLineSeries();
-    series->setName("完成数量");
+    trendLineSeries = new QLineSeries();
+    trendLineSeries->setName("完成数量");
+    chart->addSeries(trendLineSeries);
 
-    // 获取日期范围
-    QDate endDate = QDate::currentDate();
-    QDate startDate = endDate.addDays(-6);
+    // ✅ 初始化为 0 数据（防止初始不显示）
+    QDate today = QDate::currentDate();
+    QDate startDate = today.addDays(-6);
 
-    // 填充数据
-    for (int i = 0; i <= 6; ++i) {
-        QDate date = startDate.addDays(i);
-        series->append(date.toJulianDay(), punchRecord->getPunchCount(date));
-    }
-
-    chart->addSeries(series);
-
-    // X轴（日期轴）
+    //x轴
     QDateTimeAxis *xAxis = new QDateTimeAxis();
-    xAxis->setFormat("MM-dd");  // 显示月-日格式
-    xAxis->setTickCount(8);     // 显示8个刻度（包括首尾）
-    xAxis->setRange(QDateTime(startDate.startOfDay()),
-                    QDateTime(endDate.endOfDay()));  // 使用endOfDay包含全天数据
+    xAxis->setFormat("MM-dd");
+    xAxis->setTitleText("日期");
+    xAxis->setTickCount(7);
+    xAxis->setRange(QDateTime(startDate, QTime(0, 0)), QDateTime(today, QTime(23, 59)));
     chart->addAxis(xAxis, Qt::AlignBottom);
-    series->attachAxis(xAxis);
+    trendLineSeries->attachAxis(xAxis);
 
-    // Y轴
+    //y轴
     QValueAxis *yAxis = new QValueAxis();
-    yAxis->setLabelFormat("%d");
-    yAxis->setTitleText("任务数");
+    yAxis->setTitleText("完成数量");
+    yAxis->setMin(0);
+    yAxis->setMax(5);
     chart->addAxis(yAxis, Qt::AlignLeft);
-    series->attachAxis(yAxis);
+    trendLineSeries->attachAxis(yAxis);
+
+    trendMarkers = new QScatterSeries();
+    trendMarkers->setMarkerSize(10);
+    trendMarkers->setColor(Qt::red);
+    trendMarkers->setBorderColor(Qt::black);
+    chart->addSeries(trendMarkers);
+    trendMarkers->attachAxis(xAxis);
+    trendMarkers->attachAxis(yAxis);
+
+    chart->setBackgroundBrush(QBrush(Qt::white));
+    chart->setMargins(QMargins(0, 0, 0, 0));
+    trendLineSeries->setPen(QPen(Qt::blue, 2));
+    trendLineSeries->setPointsVisible(true);
+    trendLineSeries->setBrush(QColor(100, 149, 237, 50));
+    xAxis->setLabelsFont(QFont("Arial", 8));
+    xAxis->setGridLineVisible(true);
+    xAxis->setGridLinePen(QPen(Qt::lightGray, 1, Qt::DotLine));
+    yAxis->setGridLineVisible(true);
+    yAxis->setGridLinePen(QPen(Qt::lightGray, 1, Qt::DotLine));
+
+    dailyTaskTrendChartView = new QChartView(chart);
+    dailyTaskTrendChartView->setRenderHint(QPainter::Antialiasing);
+    dailyTaskTrendChartView->setRenderHint(QPainter::TextAntialiasing);
+    dailyTaskTrendChartView->setRubberBand(QChartView::HorizontalRubberBand);
+    dailyTaskTrendChartView->setInteractive(true);
 
     // 添加导航按钮
     QWidget *chartContainer = new QWidget();
@@ -116,10 +127,6 @@ void DataVisualization::initDailyTaskTrendChart() {
 
     QPushButton *leftBtn = new QPushButton("◀");
     QPushButton *rightBtn = new QPushButton("▶");
-
-    dailyTaskTrendChartView = new QChartView(chart);
-    dailyTaskTrendChartView->setRenderHint(QPainter::Antialiasing);
-
     layout->addWidget(leftBtn);
     layout->addWidget(dailyTaskTrendChartView, 1);
     layout->addWidget(rightBtn);
@@ -132,73 +139,22 @@ void DataVisualization::initDailyTaskTrendChart() {
         adjustDateRange(7);
     });
 
-    xAxis->setLabelsFont(QFont("Arial", 8));  // 设置合适字体大小
-    dailyTaskTrendChartView->setRenderHint(QPainter::TextAntialiasing);  // 文本抗锯齿
-
-    // 初始化日期范围（最近7天）
-    currentEndDate = QDate::currentDate();
-    currentStartDate = currentEndDate.addDays(-6);
-
     // 设置导航按钮
     setupNavigationButtons();
 
     // 首次加载数据
-    updateTrendChartData(currentStartDate, currentEndDate);
+    currentEndDate = today;
+    currentStartDate = startDate;
 
     // 初始按钮状态
     updateDateDisplay();
-
-    // 添加图表样式优化
-    chart->setBackgroundBrush(QBrush(Qt::white));
-    chart->setMargins(QMargins(0, 0, 0, 0));
-
-    // 系列样式
-    series->setPen(QPen(Qt::blue, 2));
-    series->setPointsVisible(true);
-    QColor fillColor = QColor(100, 149, 237, 50); // 浅蓝色填充
-    series->setBrush(fillColor);
-
-    // X轴优化
-    xAxis->setGridLineVisible(true);
-    xAxis->setGridLinePen(QPen(Qt::lightGray, 1, Qt::DotLine));
-
-    // Y轴优化
-    yAxis->setGridLineVisible(true);
-    yAxis->setGridLinePen(QPen(Qt::lightGray, 1, Qt::DotLine));
-    yAxis->setMin(0); // 确保从0开始
-
-    // 添加数据标签
-    QFont labelFont;
-    labelFont.setPointSize(8);
-    auto markers = new QScatterSeries();
-    markers->setMarkerSize(10);
-    markers->setColor(Qt::red);
-    markers->setBorderColor(Qt::black);
-
-    for (const QPointF &point : series->points()) {
-        markers->append(point);
-    }
-    chart->addSeries(markers);
-    markers->attachAxis(xAxis);
-    markers->attachAxis(yAxis);
-
-    dailyTaskTrendChartView->setRubberBand(QChartView::HorizontalRubberBand);
-    dailyTaskTrendChartView->setInteractive(true);
 
     // 创建悬浮提示框
     Callout *tooltip = new Callout(chart);
     chart->scene()->addItem(tooltip);
 
-    // 获取图表视图的场景
-    QGraphicsScene *chartScene = dailyTaskTrendChartView->scene();
-    if (!chartScene) {
-        chartScene = new QGraphicsScene(this);
-        dailyTaskTrendChartView->setScene(chartScene);
-    }
-    chartScene->addItem(tooltip);
-
     // 连接悬浮事件
-    connect(series, &QLineSeries::hovered, [tooltip](const QPointF &point, bool state) {
+    connect(trendLineSeries, &QLineSeries::hovered, [tooltip](const QPointF &point, bool state) {
         if (state) {
             QDate date = QDate::fromJulianDay(point.x());
             tooltip->setText(QString("日期: %1\n完成任务: %2").arg(date.toString()).arg(point.y()));
@@ -236,39 +192,50 @@ void DataVisualization::updateTrendChartData() {
 
 void DataVisualization::updateAxisTicks(QDateTimeAxis *axis, const QDate &startDate, const QDate &endDate) {
     // 设置主要刻度（每天一个）
-    axis->setTickCount(7); // 7天需要8个刻度线
+    axis->setTickCount(7);
 
     // 设置标签显示格式
     axis->setFormat("MM-dd");
 }
 
 void DataVisualization::updateTrendChartData(const QDate &startDate, const QDate &endDate) {
-    if (!dailyTaskTrendChartView) return;
+    if (!trendLineSeries || !trendMarkers || !dailyTaskTrendChartView) return;
 
-    QLineSeries *series = qobject_cast<QLineSeries*>(dailyTaskTrendChartView->chart()->series()[0]);
+    trendLineSeries->clear();
+    trendMarkers->clear();
+
+    QChart *chart = dailyTaskTrendChartView->chart();
+    QLineSeries *series = nullptr;
+
+    for (QAbstractSeries *s : chart->series()) {
+        series = qobject_cast<QLineSeries *>(s);
+        if (series) break;
+    }
+    if (!series) return;
+
     series->clear();
 
     // 修改循环条件，确保只取7天
+    int maxY = 0;
     for (int i = 0; i < 7; ++i) {
         QDate date = startDate.addDays(i);
         int count = punchRecord->getPunchCount(date);
+        maxY = std::max(maxY, count);
         series->append(date.toJulianDay(), count);
     }
 
     // 更新X轴刻度
     QDateTimeAxis *xAxis = qobject_cast<QDateTimeAxis*>(dailyTaskTrendChartView->chart()->axes(Qt::Horizontal)[0]);
-    xAxis->setTickCount(7); // 明确设置7个刻度
-    xAxis->setRange(
-        QDateTime(startDate.startOfDay()),
-        QDateTime(endDate.startOfDay())
-    );
+    if (xAxis) {
+        xAxis->setRange(QDateTime(startDate.startOfDay()), QDateTime(endDate.startOfDay()));
+    }
 
     // 自动调整Y轴范围
-    QValueAxis *yAxis = qobject_cast<QValueAxis*>(
-        dailyTaskTrendChartView->chart()->axes(Qt::Vertical)[0]
-        );
-    yAxis->setMin(0);
-    yAxis->applyNiceNumbers();
+    QValueAxis *yAxis = qobject_cast<QValueAxis*>(chart->axes(Qt::Vertical).first());
+    if (yAxis) {
+        yAxis->setMin(0);
+        yAxis->setMax(std::max(5, maxY + 1));  // 始终保持至少0~5的范围
+    }
 }
 
 void DataVisualization::initPunchCalendar() {
@@ -306,13 +273,35 @@ void DataVisualization::updateCharts() {
         initDailyTaskTrendChart();
     } else {
         // 更新趋势图数据
-        QLineSeries *series = qobject_cast<QLineSeries*>(dailyTaskTrendChartView->chart()->series()[0]);
+        QChart *chart = dailyTaskTrendChartView->chart();
+        QLineSeries *series = qobject_cast<QLineSeries*>(chart->series()[0]);
         series->clear();
 
         QDate today = QDate::currentDate();
-        for (int i = 6; i >= 0; --i) {
-            QDate date = today.addDays(-i);
-            series->append(date.toJulianDay(), punchRecord->getPunchCount(date));
+        QDate startDate = today.addDays(-6);
+        currentStartDate = startDate;
+        currentEndDate = today;
+
+        int maxY = 0;
+
+        for (int i = 0; i < 7; ++i) {
+            QDate date = startDate.addDays(i);
+            int count = punchRecord->getPunchCount(date);
+            maxY = std::max(maxY, count);
+            series->append(date.toJulianDay(), count);
+        }
+
+        // 更新 X 轴
+        QDateTimeAxis *xAxis = qobject_cast<QDateTimeAxis*>(chart->axes(Qt::Horizontal).first());
+        if (xAxis) {
+            xAxis->setRange(QDateTime(startDate, QTime(0, 0)), QDateTime(today, QTime(23, 59)));
+        }
+
+        // 更新 Y 轴（动态范围）
+        QValueAxis *yAxis = qobject_cast<QValueAxis*>(chart->axes(Qt::Vertical).first());
+        if (yAxis) {
+            yAxis->setMin(0);
+            yAxis->setMax(std::max(5, maxY + 1));
         }
     }
 }

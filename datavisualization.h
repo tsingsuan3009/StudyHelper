@@ -34,10 +34,8 @@ private:
     QPushButton *rightBtn;
     QLabel *dateRangeLabel;
 
-    QBarSeries *barSeries;  // 新增柱状图系列
-    QBarSet *dailyTaskBars; // 新增柱状图数据集
-    void initBarChart();    // 新增初始化柱状图方法
-
+    QLineSeries *trendLineSeries;     // 折线
+    QScatterSeries *trendMarkers;     // 数据点
     QDate currentStartDate;  // 记录当前显示的开始日期
     QDate currentEndDate;    // 记录当前显示的结束日期
     void setupNavigationButtons();  // 设置导航按钮功能

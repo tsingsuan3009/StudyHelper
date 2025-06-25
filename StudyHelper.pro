@@ -17,6 +17,8 @@ SOURCES += \
     punchrecord.cpp \
     reminder.cpp \
     reviewreminder.cpp \
+    settings.cpp \
+    settingsdialog.cpp \
     task.cpp \
     taskmanager.cpp
 
@@ -28,6 +30,8 @@ HEADERS += \
     punchrecord.h \
     reminder.h \
     reviewreminder.h \
+    settings.h \
+    settingsdialog.h \
     task.h \
     taskmanager.h
 
@@ -42,3 +46,6 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 INCLUDEPATH += $$OUT_PWD
+
+RESOURCES += \
+    resources.qrc
