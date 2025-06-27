@@ -54,7 +54,7 @@
 ### 编译步骤
 
 ```bash
-git clone https://github.com/yourname/StudyHelper.git
+git clone https://github.com/tsingsuan3009/StudyHelper.git
 cd StudyHelper
 open StudyHelper.pro  # 或使用 Qt Creator 打开
 # 编译并运行即可
