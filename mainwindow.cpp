@@ -3,6 +3,7 @@
 #include <QHBoxLayout>
 #include <QInputDialog>
 #include <QDateTime>
+#include "systemrecommendation.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -55,7 +56,9 @@ void MainWindow::setupUI()
     completeButton = new QPushButton("标记完成", taskTab);
     refreshButton = new QPushButton("刷新列表", taskTab);
     settingsButton = new QPushButton("设置", taskTab);
+    recommendBtn = new QPushButton("推荐任务");
 
+    buttonLayout->addWidget(recommendBtn);
     buttonLayout->addWidget(addTaskButton);
     buttonLayout->addWidget(completeButton);
     buttonLayout->addWidget(refreshButton);
@@ -78,8 +81,9 @@ void MainWindow::setupConnections()
     // Buttons
     connect(addTaskButton, &QPushButton::clicked, this, &MainWindow::onAddTask);
     connect(completeButton, &QPushButton::clicked, this, &MainWindow::onTaskComplete);
-    connect(refreshButton, &QPushButton::clicked, this, &MainWindow::refreshTaskList);
+    connect(refreshButton, &QPushButton::clicked, this, &MainWindow::onRefreshClicked);
     connect(settingsButton, &QPushButton::clicked, this, [=]() {settingsDialog = new SettingsDialog(settings, this);settingsDialog->exec();});
+    connect(recommendBtn, &QPushButton::clicked, this, &MainWindow::onRecommendTasks);
 
     // Table
     connect(taskTable, &QTableWidget::doubleClicked, this, &MainWindow::onShowTaskDetails);
@@ -97,6 +101,10 @@ void MainWindow::setupConnections()
     connect(punchRecord, &PunchRecord::punchRecorded, dataViz, &DataVisualization::updateCharts);
     connect(punchRecord, SIGNAL(punchRecorded(QString,QDate)),dataViz, SLOT(updateTrendChartData()));
     connect(settings, &Settings::settingsChanged, this, [=]() {applyTheme(settings->getThemePreference());});
+}
+
+void MainWindow::onRefreshClicked() {
+    taskManager->reloadTasks();         // 重新读取数据库
 }
 
 void MainWindow::refreshTaskList()
@@ -204,8 +212,9 @@ void MainWindow::onTaskComplete() {
         // 标记任务完成
         taskManager->markTaskCompleted(row, true);
 
-        // 记录打卡并获取任务主题
+        // 记录打卡
         punchRecord->recordPunch(taskTopic);
+        punchRecord->recordPunch(QDate::currentDate());
 
         // 更新任务列表显示
         refreshTaskList();
@@ -271,4 +280,16 @@ void MainWindow::applyTheme(const QString &theme) {
 MainWindow::~MainWindow()
 {
     // All Qt objects are child of MainWindow and will be deleted automatically
+}
+
+void MainWindow::onRecommendTasks() {
+    SystemRecommendation recommender(punchRecord);
+    QList<Task> tasks = recommender.generateRecommendations();
+
+    for (const Task &t : tasks) {
+        taskManager->addTask(t);
+    }
+
+    refreshTaskList();
+    QMessageBox::information(this, "推荐完成", QString("已为你推荐 %1 个任务。").arg(tasks.size()));
 }

@@ -2,22 +2,26 @@
 #include <QDate>
 #include <algorithm>
 
+// Analysis 构造函数，接收任务管理器和打卡记录对象作为参数
 Analysis::Analysis(TaskManager *taskManager, PunchRecord *punchRecord, QObject *parent)
     : QObject(parent), taskManager(taskManager), punchRecord(punchRecord) {}
 
 // 计算总任务完成率 (0.0~1.0)
 double Analysis::getCompletionRate() const {
-    const auto &tasks = taskManager->getTasks();
-    if (tasks.isEmpty()) return 0.0;
+    const auto &tasks = taskManager->getTasks(); // 获取任务列表
+    if (tasks.isEmpty()) return 0.0;             // 若无任务，完成率为 0
 
+    // 统计已完成任务数量
     int completed = std::count_if(tasks.begin(), tasks.end(),
                                   [](const Task &t) { return t.isCompleted(); });
+
+    // 返回完成数除以总任务数
     return static_cast<double>(completed) / tasks.size();
 }
 
 // 计算日均任务数（最近30天）
 int Analysis::getDailyAverageTasks() const {
-    auto dailyCounts = punchRecord->getAllRecords();
+    auto dailyCounts = punchRecord->getAllRecords(); // 获取全部打卡记录
     if (dailyCounts.isEmpty()) return 0;
 
     QDate endDate = QDate::currentDate();
@@ -26,10 +30,10 @@ int Analysis::getDailyAverageTasks() const {
     int total = 0;
     for (const auto &date : dailyCounts.keys()) {
         if (date >= startDate && date <= endDate) {
-            total += dailyCounts[date];
+            total += dailyCounts[date]; // 累加有效日期范围内的打卡数量
         }
     }
-    return total / 30;
+    return total / 30; // 返回日均数量
 }
 
 // 按优先级统计完成率

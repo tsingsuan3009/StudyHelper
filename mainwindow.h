@@ -37,6 +37,8 @@ private slots:
     void onAddTask();
     void onTaskComplete();
     void onShowTaskDetails(const QModelIndex &index);
+    void onRecommendTasks();
+    void onRefreshClicked();
     void handleReminder(const QString &topic, const QString &msg);
     void applyTheme(const QString &theme);
 
@@ -44,6 +46,7 @@ private:
     void setupUI();
     void setupConnections();
     void refreshTaskList();
+    void reloadTasks();
 
     // UI Components
     QTabWidget *tabWidget;
@@ -53,6 +56,7 @@ private:
     QPushButton *completeButton;
     QPushButton *refreshButton;
     QPushButton *settingsButton;
+    QPushButton *recommendBtn;
     SettingsDialog *settingsDialog;
     Settings *settings;
 

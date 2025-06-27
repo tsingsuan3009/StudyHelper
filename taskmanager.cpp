@@ -126,3 +126,21 @@ void TaskManager::deleteTaskFromDatabase(const Task &task) {
     query.addBindValue(task.getTopic());
     query.exec();
 }
+
+void TaskManager::reloadTasks() {
+    tasks.clear();
+    QSqlQuery query(db);
+    query.exec("SELECT topic, dueDate, priority, isCompleted, needReview FROM tasks");
+    while (query.next()) {
+        QString topic = query.value(0).toString();
+        QDateTime dueDate = QDateTime::fromString(query.value(1).toString(), "yyyy-MM-dd HH:mm:ss");
+        Task::Priority p = static_cast<Task::Priority>(query.value(2).toInt());
+        bool completed = query.value(3).toBool();
+        bool review = query.value(4).toBool();
+        Task t(topic, dueDate, p, review);
+        t.setCompleted(completed);
+        tasks.append(t);
+    }
+
+    emit tasksChanged();
+}

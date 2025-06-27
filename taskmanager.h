@@ -26,6 +26,8 @@ public:
     // 系统推荐任务（示例）
     void loadRecommendedTasks();
 
+    void reloadTasks();
+
 signals:
     void tasksChanged(); // 任务列表变更信号
     void taskAdded(const Task &task);

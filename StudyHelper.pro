@@ -19,6 +19,7 @@ SOURCES += \
     reviewreminder.cpp \
     settings.cpp \
     settingsdialog.cpp \
+    systemrecommendation.cpp \
     task.cpp \
     taskmanager.cpp
 
@@ -32,6 +33,7 @@ HEADERS += \
     reviewreminder.h \
     settings.h \
     settingsdialog.h \
+    systemrecommendation.h \
     task.h \
     taskmanager.h
 

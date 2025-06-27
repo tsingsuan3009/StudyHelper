@@ -4,6 +4,9 @@
 #include <QObject>
 #include <QMap>
 #include <QDate>
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlError>
 
 class PunchRecord : public QObject {
     Q_OBJECT
@@ -25,10 +28,16 @@ public:
     QMap<QString, QList<QDate>> getAllTaskRecords() const;
     QList<QDate> getTaskRecords(const QString &taskTopic) const; // 某任务的所有打卡日期
 
+    PunchRecord();
+    void recordPunch(const QDate &date);  // 打卡+1
+    QMap<QDate, int> getPunchHistory(const QDate &start, const QDate &end) const;
+
 signals:
     void punchRecorded(const QString &taskTopic, const QDate &date);
 
 private:
+    QSqlDatabase db;
+    void initDB();
     QMap<QString, QList<QDate>> taskRecords; // 任务主题 -> 打卡日期列表
     QMap<QDate, int> dailyCounts;            // 每日打卡计数
 };

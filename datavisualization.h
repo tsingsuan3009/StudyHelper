@@ -24,7 +24,6 @@ public:
 
 public slots:
     void handleTaskCompleted();  // 新增专门处理任务完成的槽函数
-    void updateTrendChartData();
     void updateTrendChartData(const QDate &startDate, const QDate &endDate);
     void updateAxisTicks(QDateTimeAxis *axis, const QDate &startDate, const QDate &endDate);
     void updateDateRangeLabel();
@@ -34,8 +33,6 @@ private:
     QPushButton *rightBtn;
     QLabel *dateRangeLabel;
 
-    QLineSeries *trendLineSeries;     // 折线
-    QScatterSeries *trendMarkers;     // 数据点
     QDate currentStartDate;  // 记录当前显示的开始日期
     QDate currentEndDate;    // 记录当前显示的结束日期
     void setupNavigationButtons();  // 设置导航按钮功能
