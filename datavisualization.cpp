@@ -222,6 +222,22 @@ void DataVisualization::initPunchCalendar() {
     for (const QDate &date : punchRecord->getAllRecords().keys()) {
         punchCalendar->setDateTextFormat(date, highlightFormat);
     }
+
+    connect(punchCalendar, &QCalendarWidget::clicked, this, &DataVisualization::onCalendarDateClicked);
+}
+
+void DataVisualization::onCalendarDateClicked(const QDate &date) {
+    QStringList tasks = punchRecord->getTasksOfDate(date);
+    if (tasks.isEmpty()) {
+        QMessageBox::information(this, "当天记录",
+                                 date.toString("yyyy-MM-dd") + "\n\n❌ 当天没有完成任务。");
+        return;
+    }
+
+    QString msg = date.toString("yyyy-MM-dd") + "\n\n✅ 当天完成任务：\n";
+    for (const auto &t : tasks)  msg += "• " + t + '\n';
+
+    QMessageBox::information(this, "当天记录", msg.trimmed());
 }
 
 void DataVisualization::updateCharts() {

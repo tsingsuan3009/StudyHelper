@@ -27,6 +27,7 @@ public slots:
     void updateTrendChartData(const QDate &startDate, const QDate &endDate);
     void updateAxisTicks(QDateTimeAxis *axis, const QDate &startDate, const QDate &endDate);
     void updateDateRangeLabel();
+    void onCalendarDateClicked(const QDate &date);
 
 private:
     QPushButton *leftBtn;

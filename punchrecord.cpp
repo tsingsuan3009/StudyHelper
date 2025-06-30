@@ -17,45 +17,57 @@ void PunchRecord::initDB() {
     query.exec("CREATE TABLE IF NOT EXISTS punch_records ("
                "date TEXT PRIMARY KEY, "
                "count INTEGER DEFAULT 0)");
+    query.exec("CREATE TABLE IF NOT EXISTS punch_detail ("
+               "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+               "date TEXT, "
+               "topic TEXT)");
 }
 
-void PunchRecord::recordPunch(const QDate &date) {
-    QString dateStr = date.toString("yyyy-MM-dd");
+void PunchRecord::addPunchDetail(const QString &taskTopic, const QDate &date){
+    const QString dateStr = date.toString("yyyy-MM-dd");
 
-    // 查询是否已有该日期记录
-    QSqlQuery checkQuery;
-    checkQuery.prepare("SELECT count FROM punch_records WHERE date = ?");
-    checkQuery.addBindValue(dateStr);
-    if (checkQuery.exec() && checkQuery.next()) {
-        int currentCount = checkQuery.value(0).toInt();
-        QSqlQuery updateQuery;
-        updateQuery.prepare("UPDATE punch_records SET count = ? WHERE date = ?");
-        updateQuery.addBindValue(currentCount + 1);
-        updateQuery.addBindValue(dateStr);
-        if (!updateQuery.exec()) {
-            qDebug() << "更新打卡失败:" << updateQuery.lastError().text();
-        }
+    /* 更新 punch_records（计数） -------------------------- */
+    QSqlQuery check;
+    check.prepare("SELECT count FROM punch_records WHERE date=?");
+    check.addBindValue(dateStr);
+    if (check.exec() && check.next()) {
+        int cur = check.value(0).toInt();
+        QSqlQuery up;
+        up.prepare("UPDATE punch_records SET count=? WHERE date=?");
+        up.addBindValue(cur + 1);
+        up.addBindValue(dateStr);
+        up.exec();
     } else {
-        QSqlQuery insertQuery;
-        insertQuery.prepare("INSERT INTO punch_records (date, count) VALUES (?, 1)");
-        insertQuery.addBindValue(dateStr);
-        if (!insertQuery.exec()) {
-            qDebug() << "插入打卡失败:" << insertQuery.lastError().text();
-        }
+        QSqlQuery ins;
+        ins.prepare("INSERT INTO punch_records(date,count) VALUES(?,1)");
+        ins.addBindValue(dateStr);
+        ins.exec();
     }
+
+    /* 插入 punch_detail（明细） -------------------------- */
+    QSqlQuery det;
+    det.prepare("INSERT INTO punch_detail(date,topic) VALUES(?,?)");
+    det.addBindValue(dateStr);
+    det.addBindValue(taskTopic);
+    det.exec();
+
+    // 内存同步（用于快速高亮）
+    dailyCounts[date] += 1;
+    taskRecords[taskTopic].append(date);
+
+    // 通知界面
+    emit punchRecorded(taskTopic, date);
 }
 
-void PunchRecord::recordPunch(const QString &taskTopic, const QDateTime &completionTime) {
-    QDate date = completionTime.date();
-
-    // 更新任务打卡记录（避免重复）
-    if (!taskRecords[taskTopic].contains(date)) {
-        taskRecords[taskTopic].append(date);
-        qDebug() << "打卡记录:" << taskTopic << date.toString("yyyy-MM-dd");
-        dailyCounts[date]++;
-
-        emit punchRecorded(taskTopic, date);
-    }
+QStringList PunchRecord::getTasksOfDate(const QDate &date) const{
+    QStringList list;
+    QSqlQuery q;
+    q.prepare("SELECT topic FROM punch_detail WHERE date=?");
+    q.addBindValue(date.toString("yyyy-MM-dd"));
+    if (q.exec()) {
+            while (q.next())  list << q.value(0).toString();
+        }
+    return list;
 }
 
 bool PunchRecord::hasPunched(const QString &taskTopic, const QDate &date) const {

@@ -15,7 +15,7 @@ public:
     explicit PunchRecord(QObject *parent = nullptr);
 
     // 记录打卡（任务完成）
-    void recordPunch(const QString &taskTopic, const QDateTime &completionTime = QDateTime::currentDateTime());
+    void addPunchDetail(const QString &taskTopic, const QDate &date = QDate::currentDate());
 
     // 查询打卡记录
     bool hasPunched(const QString &taskTopic, const QDate &date) const;
@@ -29,8 +29,8 @@ public:
     QList<QDate> getTaskRecords(const QString &taskTopic) const; // 某任务的所有打卡日期
 
     PunchRecord();
-    void recordPunch(const QDate &date);  // 打卡+1
     QMap<QDate, int> getPunchHistory(const QDate &start, const QDate &end) const;
+    QStringList getTasksOfDate(const QDate &date) const;
 
 signals:
     void punchRecorded(const QString &taskTopic, const QDate &date);

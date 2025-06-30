@@ -213,8 +213,7 @@ void MainWindow::onTaskComplete() {
         taskManager->markTaskCompleted(row, true);
 
         // 记录打卡
-        punchRecord->recordPunch(taskTopic);
-        punchRecord->recordPunch(QDate::currentDate());
+        punchRecord->addPunchDetail(taskTopic);
 
         // 更新任务列表显示
         refreshTaskList();
