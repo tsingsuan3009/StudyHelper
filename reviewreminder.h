@@ -22,6 +22,7 @@ private slots:
 private:
     QMap<QString, QList<QDateTime>> reviewSchedules; // 任务主题 -> 复习时间列表
     QList<int> intervals; // 复习间隔（天）
+
 };
 
 #endif // REVIEWREMINDER_H

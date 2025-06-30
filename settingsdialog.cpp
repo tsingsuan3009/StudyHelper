@@ -1,7 +1,6 @@
 #include "settingsdialog.h"
 
-SettingsDialog::SettingsDialog(Settings *settings, QWidget *parent)
-    : QDialog(parent), settings(settings) {
+SettingsDialog::SettingsDialog(Settings *settings, QWidget *parent) : QDialog(parent), settings(settings) {
     setWindowTitle("应用设置");
 
     // 控件初始化
@@ -16,8 +15,7 @@ SettingsDialog::SettingsDialog(Settings *settings, QWidget *parent)
     themeCombo = new QComboBox(this);
     themeCombo->addItems({"系统默认", "浅色模式", "深色模式"});
     QString theme = settings->getThemePreference();
-    int index = themeCombo->findText(theme == "dark" ? "深色模式" :
-                                         theme == "light" ? "浅色模式" : "系统默认");
+    int index = themeCombo->findText(theme == "dark" ? "深色模式" : theme == "light" ? "浅色模式" : "系统默认");
     themeCombo->setCurrentIndex(index);
 
     // 布局

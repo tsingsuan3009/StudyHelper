@@ -33,8 +33,8 @@ private:
     int reminderInterval;     // 提醒间隔（分钟）
     bool reviewEnabled;       // 是否启用复习提醒
     QString themePreference;  // 主题：light/dark/system
-
     QSettings qsettings;
+
 };
 
 #endif // SETTINGS_H

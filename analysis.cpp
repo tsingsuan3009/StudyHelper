@@ -12,8 +12,7 @@ double Analysis::getCompletionRate() const {
     if (tasks.isEmpty()) return 0.0;             // 若无任务，完成率为 0
 
     // 统计已完成任务数量
-    int completed = std::count_if(tasks.begin(), tasks.end(),
-                                  [](const Task &t) { return t.isCompleted(); });
+    int completed = std::count_if(tasks.begin(), tasks.end(),[](const Task &t) { return t.isCompleted(); });
 
     // 返回完成数除以总任务数
     return static_cast<double>(completed) / tasks.size();
@@ -100,9 +99,7 @@ QString Analysis::getEfficiencyAnalysis() const {
     auto weeklyTrend = getWeeklyCompletionTrend();
     if (!weeklyTrend.isEmpty()) {
         int change = weeklyTrend.last() - weeklyTrend.first();
-        report += QString("• 最近8周趋势: %1%2\n")
-                      .arg(change >= 0 ? "↑" : "↓")
-                      .arg(abs(change));
+        report += QString("• 最近8周趋势: %1%2\n").arg(change >= 0 ? "↑" : "↓").arg(abs(change));
     }
     return report;
 }

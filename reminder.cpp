@@ -84,6 +84,5 @@ QString Reminder::generateMessage(const Task &task, const QDateTime &currentTime
     case Task::Low: priorityStr = "低优先级"; break;
     }
 
-    return QString("【%1】%2 即将到期（剩余时间: %3分钟）")
-        .arg(priorityStr, task.getTopic(), QString::number(secsToDue / 60));
+    return QString("【%1】%2 即将到期（剩余时间: %3分钟）").arg(priorityStr, task.getTopic(), QString::number(secsToDue / 60));
 }

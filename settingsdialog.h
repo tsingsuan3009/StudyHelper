@@ -20,10 +20,10 @@ private slots:
 
 private:
     Settings *settings;
-
     QSpinBox *reminderIntervalSpin;
     QCheckBox *reviewCheckBox;
     QComboBox *themeCombo;
+
 };
 
 #endif // SETTINGSDIALOG_H

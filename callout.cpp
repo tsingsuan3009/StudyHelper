@@ -36,8 +36,7 @@ void Callout::updateGeometry() {
 
     // 计算文本尺寸
     QFontMetrics metrics(m_font);
-    m_textRect = metrics.boundingRect(QRect(0, 0, 150, 50),
-                                      Qt::AlignLeft | Qt::AlignTop, m_text);
+    m_textRect = metrics.boundingRect(QRect(0, 0, 150, 50),Qt::AlignLeft | Qt::AlignTop, m_text);
     m_textRect.adjust(-5, -5, 5, 5); // 增加边距
 
     // 计算整体边界
@@ -70,9 +69,7 @@ QRectF Callout::boundingRect() const {
     return m_rect;
 }
 
-void Callout::paint(QPainter *painter,
-                    const QStyleOptionGraphicsItem *option,
-                    QWidget *widget) {
+void Callout::paint(QPainter *painter,const QStyleOptionGraphicsItem *option,QWidget *widget) {
     Q_UNUSED(option)
     Q_UNUSED(widget)
 

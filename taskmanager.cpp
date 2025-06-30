@@ -61,9 +61,10 @@ void TaskManager::loadRecommendedTasks() {
 void TaskManager::initDatabase() {
     db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName("tasks.db");  // SQLite 文件保存在程序目录下
+    db.open();
 
     if (!db.open()) {
-        qDebug() << "数据库打开失败:" << db.lastError().text();
+        qWarning() << "❌ 无法打开数据库:" << db.lastError().text();
         return;
     }
 

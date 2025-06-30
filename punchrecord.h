@@ -40,6 +40,7 @@ private:
     void initDB();
     QMap<QString, QList<QDate>> taskRecords; // 任务主题 -> 打卡日期列表
     QMap<QDate, int> dailyCounts;            // 每日打卡计数
+
 };
 
 #endif // PUNCHRECORD_H

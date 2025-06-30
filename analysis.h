@@ -34,6 +34,7 @@ public slots:
 private:
     TaskManager *taskManager;
     PunchRecord *punchRecord;
+
 };
 
 #endif // ANALYSIS_H

@@ -5,14 +5,7 @@
 #include <QDateTime>
 #include "systemrecommendation.h"
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent),
-    taskManager(new TaskManager(this)),
-    punchRecord(new PunchRecord(this)),
-    reminder(new Reminder(this)),
-    dataViz(new DataVisualization(taskManager, punchRecord, this)),
-    settings(new Settings(this))
-{
+MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),taskManager(new TaskManager(this)),punchRecord(new PunchRecord(this)),reminder(new Reminder(this)),dataViz(new DataVisualization(taskManager, punchRecord, this)),settings(new Settings(this)){
     setupUI();
     setupConnections();
     refreshTaskList();
@@ -129,12 +122,10 @@ void MainWindow::refreshTaskList()
         taskTable->setItem(i, 1, new QTableWidgetItem(priority));
 
         // Due Time
-        taskTable->setItem(i, 2,
-                           new QTableWidgetItem(task.getDueTime().toString("yyyy-MM-dd hh:mm")));
+        taskTable->setItem(i, 2,new QTableWidgetItem(task.getDueTime().toString("yyyy-MM-dd hh:mm")));
 
         // Status
-        taskTable->setItem(i, 3,
-                           new QTableWidgetItem(task.isCompleted() ? "✅ 完成" : "🕒 进行中"));
+        taskTable->setItem(i, 3,new QTableWidgetItem(task.isCompleted() ? "✅ 完成" : "🕒 进行中"));
     }
 }
 
@@ -167,8 +158,7 @@ void MainWindow::onAddTask() {
     form.addRow(&reviewCheck);
 
     // 按钮框
-    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
-                               Qt::Horizontal, &dialog);
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, &dialog);
     form.addRow(&buttonBox);
 
     // 连接按钮信号
@@ -193,10 +183,7 @@ void MainWindow::onAddTask() {
         }
 
         // 创建任务
-        Task task(topic,
-                  dateTimeEdit.dateTime(),
-                  priority,
-                  reviewCheck.isChecked());
+        Task task(topic,dateTimeEdit.dateTime(),priority,reviewCheck.isChecked());
 
         // 添加到系统
         taskManager->addTask(task);

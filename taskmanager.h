@@ -41,6 +41,7 @@ private:
     void insertTaskToDatabase(const Task &task);
     void updateTaskInDatabase(const Task &task);
     void deleteTaskFromDatabase(const Task &task);
+
 };
 
 #endif // TASKMANAGER_H

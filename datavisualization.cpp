@@ -7,14 +7,7 @@
 #include <QtCharts/QLineSeries>
 #include <QDate>
 
-DataVisualization::DataVisualization(TaskManager *taskManager, PunchRecord *punchRecord, QWidget *parent)
-    : QWidget(parent),
-    taskManager(taskManager),
-    punchRecord(punchRecord),
-    leftBtn(nullptr),
-    rightBtn(nullptr),
-    dateRangeLabel(nullptr) {
-
+DataVisualization::DataVisualization(TaskManager *taskManager, PunchRecord *punchRecord, QWidget *parent):QWidget(parent),taskManager(taskManager),punchRecord(punchRecord),leftBtn(nullptr),rightBtn(nullptr),dateRangeLabel(nullptr) {
     // 确保有图形场景
     QGraphicsScene *scene = new QGraphicsScene(this);
 
@@ -229,8 +222,7 @@ void DataVisualization::initPunchCalendar() {
 void DataVisualization::onCalendarDateClicked(const QDate &date) {
     QStringList tasks = punchRecord->getTasksOfDate(date);
     if (tasks.isEmpty()) {
-        QMessageBox::information(this, "当天记录",
-                                 date.toString("yyyy-MM-dd") + "\n\n❌ 当天没有完成任务。");
+        QMessageBox::information(this, "当天记录", date.toString("yyyy-MM-dd") + "\n\n❌ 当天没有完成任务。");
         return;
     }
 
@@ -336,11 +328,7 @@ void DataVisualization::updateDateDisplay() {
     if (!dateRangeLabel) return;
 
     QString format = "MM-dd";  // 更简洁的显示格式
-    dateRangeLabel->setText(
-        QString("%1 ~ %2")
-            .arg(currentStartDate.toString(format))
-            .arg(currentEndDate.toString(format))
-        );
+    dateRangeLabel->setText(QString("%1 ~ %2").arg(currentStartDate.toString(format)).arg(currentEndDate.toString(format)));
 
     // 禁用/启用按钮（边界控制）
     leftBtn->setEnabled(currentStartDate > QDate::currentDate().addDays(-365));
@@ -350,25 +338,15 @@ void DataVisualization::updateDateDisplay() {
 void DataVisualization::updateDateDisplay(QLabel *label) {
     if (!label) return;
     QString format = "yyyy-MM-dd";
-    label->setText(QString("%1 至 %2")
-                       .arg(currentStartDate.toString(format))
-                       .arg(currentEndDate.toString(format)));
+    label->setText(QString("%1 至 %2").arg(currentStartDate.toString(format)).arg(currentEndDate.toString(format)));
 }
 
 void DataVisualization::handleTaskCompleted() {
     // 强制立即更新图表
     updateTrendChartData(currentStartDate, currentEndDate);
-
-    // 调试输出
-    qDebug() << "图表已刷新，日期范围:"
-             << currentStartDate.toString("yyyy-MM-dd")
-             << "到"
-             << currentEndDate.toString("yyyy-MM-dd");
 }
 
 void DataVisualization::updateDateRangeLabel() {
-    QString rangeText = QString("%1 - %2")
-    .arg(currentStartDate.toString("yyyy-MM-dd"))
-        .arg(currentEndDate.toString("yyyy-MM-dd"));
+    QString rangeText = QString("%1 - %2").arg(currentStartDate.toString("yyyy-MM-dd")).arg(currentEndDate.toString("yyyy-MM-dd"));
     dateRangeLabel->setText(rangeText);
 }

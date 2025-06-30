@@ -35,6 +35,7 @@ private:
 
     QTimer *timer;                  // 定时器，定期检查任务
     QList<Task> monitoredTasks;     // 被监控的任务列表
+
 };
 
 #endif // REMINDER_H

@@ -64,9 +64,9 @@ QStringList PunchRecord::getTasksOfDate(const QDate &date) const{
     QSqlQuery q;
     q.prepare("SELECT topic FROM punch_detail WHERE date=?");
     q.addBindValue(date.toString("yyyy-MM-dd"));
-    if (q.exec()) {
-            while (q.next())  list << q.value(0).toString();
-        }
+    if (q.exec()){
+        while (q.next())  list << q.value(0).toString();
+    }
     return list;
 }
 
@@ -79,7 +79,6 @@ int PunchRecord::getPunchCount(const QDate &date) const {
     QSqlQuery query;
     query.prepare("SELECT count FROM punch_records WHERE date = ?");
     query.addBindValue(dateStr);
-    query.exec();
     if (query.exec() && query.next()) {
         return query.value(0).toInt();
     }

@@ -65,6 +65,7 @@ private:
     PunchRecord *punchRecord;
     Reminder *reminder;
     DataVisualization *dataViz;
+
 };
 
 #endif // MAINWINDOW_H

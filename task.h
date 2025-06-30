@@ -34,6 +34,7 @@ private:
     Priority priority;      // 优先级
     bool needsReviewFlag;   // 是否需要复习提醒
     bool completed;         // 是否已完成
+
 };
 
 #endif // TASK_H

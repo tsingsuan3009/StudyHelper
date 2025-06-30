@@ -54,6 +54,7 @@ private:
     void initPunchCalendar();
     void updateDateDisplay();
     void updateDateDisplay(QLabel *label);
+
 };
 
 #endif // DATAVISUALIZATION_H

@@ -1,7 +1,6 @@
 #include "task.h"
 
-Task::Task(const QString &topic, const QDateTime &dueTime, Priority priority, bool needsReview)
-    : topic(topic), dueTime(dueTime), priority(priority), needsReviewFlag(needsReview), completed(false) {}
+Task::Task(const QString &topic, const QDateTime &dueTime, Priority priority, bool needsReview) : topic(topic), dueTime(dueTime), priority(priority), needsReviewFlag(needsReview), completed(false) {}
 
 // 获取任务主题
 QString Task::getTopic() const {

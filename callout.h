@@ -31,6 +31,7 @@ private:
     static const int PADDING = 5;
     static const int CORNER_RADIUS = 5;
     static const int Z_VALUE = 11;
+
 };
 
 #endif // CALLOUT_H

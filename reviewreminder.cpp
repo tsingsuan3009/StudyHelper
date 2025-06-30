@@ -35,8 +35,7 @@ void ReviewReminder::checkReviewTasks() {
         const QString &topic = it.key();
         for (const QDateTime &reviewTime : it.value()) {
             if (now >= reviewTime && now < reviewTime.addSecs(3600)) { // 1小时窗口期
-                emit reminderTriggered(topic,
-                                       QString("复习提醒【%1】\n建议现在复习以巩固记忆").arg(topic));
+                emit reminderTriggered(topic,QString("复习提醒【%1】\n建议现在复习以巩固记忆").arg(topic));
                 break;
             }
         }
